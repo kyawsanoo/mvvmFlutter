@@ -1,9 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dio/screens/create_post_screen.dart';
 import 'package:flutter_dio/viewmodels/post_list_screen_viewmodel.dart';
 import 'package:provider/provider.dart';
 
-import '../../models_2/post.dart';
+import '../models/post.dart';
 import 'edit_post_screen.dart';
 
 class PostListScreen extends StatefulWidget {
@@ -83,7 +84,7 @@ class _PostListScreenState extends State<PostListScreen> {
                                               MainAxisAlignment.spaceBetween,
                                           children: [
                                             Text(
-                                              "Title: ${posts[index].title}",
+                                              "${posts[index].title}",
                                               textDirection: TextDirection.ltr,
                                               style: const TextStyle(
                                                 fontSize: 18,
@@ -94,7 +95,7 @@ class _PostListScreenState extends State<PostListScreen> {
                                               height: 20,
                                             ),
                                             Text(
-                                                "body: ${posts[index].body}"),
+                                                "${posts[index].body}"),
 
                                           ],
                                         ),
@@ -196,8 +197,8 @@ class _PostListScreenState extends State<PostListScreen> {
       )),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          /*        await  Navigator.push(context, MaterialPageRoute(
-            builder: (context) => const CreateScreen(),
+                  await  Navigator.push(context, MaterialPageRoute(
+            builder: (context) => const CreatePostScreen(),
 
           )
           ).then((isCreated){
@@ -208,7 +209,7 @@ class _PostListScreenState extends State<PostListScreen> {
               //refresh the page
               _pullRefresh();
             }
-          });*/
+          });
         },
         child: const Icon(Icons.add),
       ),
@@ -219,31 +220,67 @@ class _PostListScreenState extends State<PostListScreen> {
     setState(() {});
   }
 
-  Future<void> _dialogBuilder(BuildContext context, Post todo) {
+  Future<void> _dialogBuilder(BuildContext context, Post post) {
+
     return showDialog<void>(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Confirm to delete'),
-          content: const Text('Are you sure to delete?'),
-          actions: <Widget>[
-            TextButton(
-              style: TextButton.styleFrom(
-                textStyle: Theme.of(context).textTheme.labelLarge,
-              ),
-              child: const Text('Cancel'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            TextButton(
-                style: TextButton.styleFrom(
-                  textStyle: Theme.of(context).textTheme.labelLarge,
-                ),
-                child: const Text('Ok'),
-                onPressed: () async {})
-          ],
-        );
+        return
+          ScaffoldMessenger(child: Builder(builder: (context){
+            return Scaffold(
+                backgroundColor: Colors.transparent,
+                body: AlertDialog(
+                  title: const Text('Confirm to delete'),
+                  content: const Text(
+                      'Are you sure to delete this post?'
+
+                  ),
+                  actions: <Widget>[
+                    TextButton(
+                      style: TextButton.styleFrom(
+                        textStyle: Theme.of(context).textTheme.labelLarge,
+                      ),
+                      child: const Text('Cancel'),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                    Consumer<PostListScreenViewModel>(builder: (context, postListScreenViewModel, child) {
+                    return
+                      postListScreenViewModel.isLoading ?
+                        const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(),)
+
+                            :
+                        TextButton(
+                            style: TextButton.styleFrom(
+                              textStyle: Theme
+                                  .of(context)
+                                  .textTheme
+                                  .labelLarge,
+                            ),
+                            child: const Text('Ok'),
+                            onPressed: () async {
+                              Post deletedPost = await viewModel.deletePost(post.id);
+                              if (viewModel.isBack){
+                                if (!context.mounted) return;
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text("Deleted successfully."),
+                                    )
+                                );
+                                await Future.delayed(const Duration(seconds: 1)).then((value) =>
+                                    Navigator.of(context).pop()
+                                );
+                              }
+
+                            }
+                        );
+                    })
+
+                  ],
+                ));
+
+          }));
       },
     );
   }

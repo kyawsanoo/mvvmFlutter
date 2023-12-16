@@ -1,15 +1,10 @@
-import 'dart:convert';
-
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-
-import '../models/user.dart';
-import '../models_2/post.dart';
+import '../models/post.dart';
 
 class ApiService {
   late Dio _dio;
-  final _baseUrl = 'https://reqres.in/api' ;
-  final _basePostUrl = "https://jsonplaceholder.typicode.com";
+  final _baseUrl = 'https://jsonplaceholder.typicode.com' ;
   ApiService({required Dio dio}) {
     _dio = dio;
     _dio.options = BaseOptions(
@@ -21,40 +16,10 @@ class ApiService {
 
   }
 
-
-
-  Future<User?> getUser({/*required Map<dynamic, dynamic> req*/ required String id}) async {
-    User? user;
-    try {
-      Response userData = await _dio.get(_baseUrl + '/users/$id');
-      if(kDebugMode) {
-        print('User Info: ${userData.data}');
-      }
-      user = User.fromJson(userData.data);
-    } on DioException catch (e) {
-      if (e.response != null) {
-        if (kDebugMode) {
-          print('Dio error!');
-          print('STATUS: ${e.response?.statusCode}');
-          print('DATA: ${e.response?.data}');
-          print('HEADERS: ${e.response?.headers}');
-        }
-
-      } else {
-        // Error due to setting up or sending the request
-        if(kDebugMode) {
-          print('Error sending request!');
-          print(e.message);
-        }
-      }
-    }
-    return user;
-  }
-
-  Future<List<Post>> getPostListApiResponse() async {
+  Future<List<Post>> callGetPostListApi() async {
 
     try {
-      final response = await _dio.get('$_basePostUrl/posts');
+      final response = await _dio.get('$_baseUrl/posts');
       if (response.statusCode == 200) {
         if(kDebugMode) {
           print('get posts responseBody: ${response.data}');
@@ -89,11 +54,36 @@ class ApiService {
     return List.empty();
   }
 
+  Future<Post> callCreatePostApi(Map<String, dynamic> req) async {
+    Post? createPostApiResponse;
+    try {
+      Response response = await _dio.post('$_baseUrl/posts', queryParameters: req);
+      if (response.statusCode == 200) {
+        if(kDebugMode) {
+          print('create post responseBody: ${response.data}');
+        }
+        createPostApiResponse = Post.fromJson(response.data);
+        if(kDebugMode) {
+          print('create post response: ${createPostApiResponse.toJson()}');
+        }
+        return createPostApiResponse;
+      } else {
+        if (kDebugMode) {
+          print('Error Occurred');
+        }
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error Occurred $e');
+      }
+    }
+    return Post();
+  }
 
-  Future<Post> updatePostApiResponse(id, Map<String, dynamic> req) async {
+  Future<Post> callUpdatePostApi(id, Map<String, dynamic> req) async {
     Post? updatePostApiResponse;
     try {
-      Response response = await _dio.put('$_basePostUrl/posts/$id', queryParameters: req);
+      Response response = await _dio.put('$_baseUrl/posts/$id', queryParameters: req);
       if (response.statusCode == 200) {
         if(kDebugMode) {
           print('update post responseBody: ${response.data}');
@@ -103,6 +93,33 @@ class ApiService {
           print('updatepostApiResponse: ${updatePostApiResponse.toJson()}');
         }
         return updatePostApiResponse;
+      } else {
+        if (kDebugMode) {
+          print('Error Occurred');
+        }
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error Occurred $e');
+      }
+    }
+    return Post();
+  }
+
+
+  Future<Post> callDeletePostApi(id) async {
+    Post? deletePostApiResponse;
+    try {
+      Response response = await _dio.delete('$_baseUrl/posts/$id');
+      if (response.statusCode == 200) {
+        if(kDebugMode) {
+          print('delete post responseBody: ${response.data}');
+        }
+        deletePostApiResponse = Post.fromJson(response.data);
+        if(kDebugMode) {
+          print('delete post ApiResponse: ${deletePostApiResponse.toJson()}');
+        }
+        return deletePostApiResponse;
       } else {
         if (kDebugMode) {
           print('Error Occurred');

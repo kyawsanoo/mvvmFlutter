@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_dio/models_2/post.dart';
+import 'package:flutter_dio/models/post.dart';
 import 'package:flutter_dio/viewmodels/edit_post_screen_viewmodel.dart';
 import 'package:provider/provider.dart';
 
@@ -13,8 +13,6 @@ class EditPostScreen extends StatefulWidget {
 
 class _EditPostScreenState extends State<EditPostScreen> {
   final _formKey = GlobalKey<FormState>();
-  String? selectedValue;
-  List<String> selectionList = ["true", "false"];
   String? _title, _body;
 
   @override

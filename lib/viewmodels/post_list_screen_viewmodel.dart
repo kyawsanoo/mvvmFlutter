@@ -1,15 +1,15 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_dio/models_2/post.dart';
+import 'package:flutter_dio/models/post.dart';
 
-import '../repository/repository.dart';
+import '../repository/post_repository.dart';
 
 enum EventLoadingStatus { NotLoaded, Loading, Loaded }
 
 class PostListScreenViewModel with ChangeNotifier {
-  final Repository userRepository;
+  final PostRepository postRepository;
 
-  PostListScreenViewModel({required this.userRepository});
+  PostListScreenViewModel({required this.postRepository});
 
   List<Post>? _response;
   List<Post>? get response => _response;
@@ -20,6 +20,8 @@ class PostListScreenViewModel with ChangeNotifier {
   String? get loginError => _loginError;
   bool get isLoading => _isLoading;
 
+  bool _isBack = false;
+  bool get isBack => _isBack;
 
   Future<List<Post>> getPostList() async {
     List<Post> posts = List.empty();
@@ -28,7 +30,7 @@ class PostListScreenViewModel with ChangeNotifier {
     //notifyListeners();
 
     try {
-      posts = await userRepository.callPostListApi();
+      posts = await postRepository.getPosts();
       _loginError = null;
       if(kDebugMode) {
         print('first data: ${posts.first.toJson()}');
@@ -40,6 +42,31 @@ class PostListScreenViewModel with ChangeNotifier {
     _isLoading = false;
     //notifyListeners();
     return posts;
+  }
+
+  Future<Post> deletePost(id) async {
+    if(kDebugMode) {
+      print('deletePost id: $id');
+    }
+    Post post = Post();
+    _isLoading = true;
+    _isBack = false;
+    notifyListeners();
+
+    try {
+      post = await postRepository.deletePost(id);
+      _loginError = null;
+      if(kDebugMode) {
+        print('delete post api response: ${post.toJson()}');
+      }
+    } catch (e) {
+      _loginError = e.toString();
+    }
+
+    _isLoading = false;
+    _isBack = true;
+    notifyListeners();
+    return post;
   }
 
 

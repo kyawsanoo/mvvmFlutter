@@ -6,10 +6,10 @@ import '../repository/post_repository.dart';
 
 enum EventLoadingStatus { NotLoaded, Loading, Loaded }
 
-class EditPostScreenViewModel with ChangeNotifier {
+class CreatePostScreenViewModel with ChangeNotifier {
   final PostRepository postRepository;
 
-  EditPostScreenViewModel({required this.postRepository});
+  CreatePostScreenViewModel({required this.postRepository});
 
   Post? _response;
   Post? get response => _response;
@@ -22,9 +22,9 @@ class EditPostScreenViewModel with ChangeNotifier {
   bool get isBack => _isBack;
 
 
-  Future<Post> updatePost(Post editedPost) async {
+  Future<Post> createPost(Post createPost) async {
     if(kDebugMode) {
-      print('editedPost: ${editedPost.toJson()}');
+      print('createPost: ${createPost.toJson()}');
     }
     Post post = Post();
     _isLoading = true;
@@ -32,10 +32,10 @@ class EditPostScreenViewModel with ChangeNotifier {
     notifyListeners();
 
     try {
-      post = await postRepository.updatePost(editedPost);
+      post = await postRepository.createPost(createPost);
       _loginError = null;
       if(kDebugMode) {
-        print('update post api response: ${post.toJson()}');
+        print('create post api response: ${post.toJson()}');
       }
     } catch (e) {
       _loginError = e.toString();
@@ -46,7 +46,6 @@ class EditPostScreenViewModel with ChangeNotifier {
     notifyListeners();
     return post;
   }
-
 
 
 }
