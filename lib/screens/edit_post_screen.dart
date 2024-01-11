@@ -123,7 +123,7 @@ class _EditPostScreenState extends State<EditPostScreen> {
         }
         if (!context.mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text("Created todo successfully.", style: TextStyle(fontSize: 18,
+          content: Text("Updated post successfully.", style: TextStyle(fontSize: 18,
             color: Colors.white,)),
         ));
         /*Navigator.push(
